@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f6f6f4" />
+  <title>Trace — Photo to Your Art</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">PHOTO → YOUR ART</div>
+        <h1>Trace</h1>
+      </div>
+      <button id="resetBtn" class="ghost">Reset</button>
+    </header>
+
+    <section id="emptyState" class="empty-state">
+      <div class="empty-card">
+        <div class="camera-icon">▣</div>
+        <h2>好きな写真を、自分の手で絵に。</h2>
+        <p>写真を下敷きにして、輪郭ガイドと自動色取得を使いながら描けます。</p>
+        <label class="primary file-label">
+          写真を選ぶ
+          <input id="fileInput" type="file" accept="image/*" hidden />
+        </label>
+        <button id="demoBtn" class="secondary">デモで試す</button>
+      </div>
+    </section>
+
+    <section id="workspace" class="workspace hidden">
+      <div class="canvas-shell">
+        <div id="canvasWrap" class="canvas-wrap">
+          <canvas id="photoCanvas"></canvas>
+          <canvas id="outlineCanvas"></canvas>
+          <canvas id="drawCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="toolbar-row compact">
+          <button id="undoBtn" class="tool-btn" title="Undo">↶</button>
+          <button id="redoBtn" class="tool-btn" title="Redo">↷</button>
+          <button id="eraserBtn" class="tool-btn">消しゴム</button>
+          <button id="clearBtn" class="tool-btn danger">描画クリア</button>
+        </div>
+
+        <div class="control-block">
+          <div class="control-head"><span>写真の濃さ</span><span id="photoOpacityValue">35%</span></div>
+          <input id="photoOpacity" type="range" min="0" max="100" value="35" />
+        </div>
+
+        <div class="control-block">
+          <div class="control-head"><span>輪郭ガイド</span><label class="switch"><input id="outlineToggle" type="checkbox" checked><span></span></label></div>
+          <div class="control-head sub"><span>輪郭の強さ</span><span id="outlineStrengthValue">55</span></div>
+          <input id="outlineStrength" type="range" min="15" max="120" value="55" />
+        </div>
+
+        <div class="control-block">
+          <div class="control-head"><span>ブラシサイズ</span><span id="brushSizeValue">14px</span></div>
+          <input id="brushSize" type="range" min="2" max="50" value="14" />
+        </div>
+
+        <div class="control-block auto-color-block">
+          <div>
+            <strong>Auto Color</strong>
+            <p>描く場所の元写真の色を自動で使います。</p>
+          </div>
+          <label class="switch"><input id="autoColorToggle" type="checkbox" checked><span></span></label>
+        </div>
+
+        <div id="manualColorRow" class="manual-color hidden">
+          <label>色 <input id="colorPicker" type="color" value="#2a2a2a"></label>
+          <button id="eyedropperBtn" class="secondary small">スポイト</button>
+        </div>
+
+        <div class="toolbar-row footer-actions">
+          <button id="previewBtn" class="secondary">作品だけ見る</button>
+          <button id="saveBtn" class="primary">PNG保存</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
