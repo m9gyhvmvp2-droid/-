@@ -21,7 +21,7 @@
       <div class="empty-card">
         <div class="camera-icon">▣</div>
         <h2>好きな写真を、自分の手で絵に。</h2>
-        <p>写真を下敷きにして、輪郭ガイドと自動色取得を使いながら描けます。</p>
+        <p>写真を下敷きにして、パレット・ブラシ・かんたん塗りで作品にしていきます。</p>
         <label class="primary file-label">
           写真を選ぶ
           <input id="fileInput" type="file" accept="image/*" hidden />
@@ -32,24 +32,89 @@
 
     <section id="workspace" class="workspace hidden">
       <div class="canvas-shell">
-        <div id="canvasWrap" class="canvas-wrap">
-          <canvas id="photoCanvas"></canvas>
-          <canvas id="outlineCanvas"></canvas>
-          <canvas id="drawCanvas"></canvas>
+        <div class="canvas-topline">
+          <div class="badge">12色パレット / 紙テクスチャ対応</div>
+          <div id="zoomLabel" class="zoom-label">100%</div>
+        </div>
+        <div id="canvasViewport" class="canvas-viewport">
+          <div id="canvasStage" class="canvas-stage">
+            <canvas id="photoCanvas"></canvas>
+            <canvas id="outlineCanvas"></canvas>
+            <canvas id="fillCanvas"></canvas>
+            <canvas id="drawCanvas"></canvas>
+            <canvas id="textureCanvas"></canvas>
+          </div>
         </div>
       </div>
 
-      <div class="panel">
+      <aside class="panel">
         <div class="toolbar-row compact">
           <button id="undoBtn" class="tool-btn" title="Undo">↶</button>
           <button id="redoBtn" class="tool-btn" title="Redo">↷</button>
           <button id="eraserBtn" class="tool-btn">消しゴム</button>
-          <button id="clearBtn" class="tool-btn danger">描画クリア</button>
+          <button id="clearBtn" class="tool-btn danger">クリア</button>
         </div>
 
         <div class="control-block">
-          <div class="control-head"><span>写真の濃さ</span><span id="photoOpacityValue">35%</span></div>
-          <input id="photoOpacity" type="range" min="0" max="100" value="35" />
+          <div class="section-title">作業モード</div>
+          <div class="segmented two">
+            <button id="traceModeBtn" class="seg active">なぞる</button>
+            <button id="easyModeBtn" class="seg">かんたん塗り</button>
+          </div>
+          <div class="segmented two top-gap">
+            <button id="drawModeBtn" class="seg active">✏️ 描く</button>
+            <button id="moveModeBtn" class="seg">✋ 移動</button>
+          </div>
+          <div class="helper-text">移動モードでは描かれず、ズーム後に位置を動かせます。</div>
+        </div>
+
+        <div class="control-block">
+          <div class="control-head"><span>ズーム</span><span id="zoomValue">100%</span></div>
+          <input id="zoomSlider" type="range" min="100" max="400" step="10" value="100" />
+        </div>
+
+        <div class="control-block">
+          <div class="section-title">ブラシ</div>
+          <div id="brushPicker" class="brush-picker">
+            <button class="brush-chip active" data-brush="watercolor">水彩</button>
+            <button class="brush-chip" data-brush="pencil">色鉛筆</button>
+            <button class="brush-chip" data-brush="crayon">クレヨン</button>
+            <button class="brush-chip" data-brush="spray">スプレー</button>
+          </div>
+          <div class="control-head top-gap"><span>ブラシサイズ</span><span id="brushSizeValue">18px</span></div>
+          <input id="brushSize" type="range" min="2" max="56" value="18" />
+        </div>
+
+        <div class="control-block auto-color-block">
+          <div>
+            <strong>Auto Color</strong>
+            <p>写真から12色パレットを自動生成します。1ストローク中は同じ色で描きます。</p>
+          </div>
+          <label class="switch"><input id="autoColorToggle" type="checkbox" checked><span></span></label>
+        </div>
+
+        <div class="control-block">
+          <div class="control-head"><span>図工パレット</span><span>12色</span></div>
+          <div id="paletteBoard" class="palette-board"></div>
+          <div class="helper-text">色をタップするとその色を選択し、Auto Color はOFFになります。</div>
+          <div id="manualColorRow" class="manual-color">
+            <label>自由色 <input id="colorPicker" type="color" value="#2a2a2a"></label>
+            <button id="eyedropperBtn" class="secondary small">スポイト</button>
+          </div>
+        </div>
+
+        <div class="control-block hidden" id="easyControls">
+          <div class="control-head"><span>かんたん塗りの細かさ</span><span id="fillDifficultyValue">かんたん</span></div>
+          <div class="segmented two">
+            <button id="fillEasyBtn" class="seg active">かんたん</button>
+            <button id="fillNormalBtn" class="seg">ふつう</button>
+          </div>
+          <div class="helper-text">タップすると領域にベース色を入れます。ドラッグすると上から描けます。</div>
+        </div>
+
+        <div class="control-block">
+          <div class="control-head"><span>写真の濃さ</span><span id="photoOpacityValue">28%</span></div>
+          <input id="photoOpacity" type="range" min="0" max="100" value="28" />
         </div>
 
         <div class="control-block">
@@ -59,28 +124,21 @@
         </div>
 
         <div class="control-block">
-          <div class="control-head"><span>ブラシサイズ</span><span id="brushSizeValue">14px</span></div>
-          <input id="brushSize" type="range" min="2" max="50" value="14" />
-        </div>
-
-        <div class="control-block auto-color-block">
-          <div>
-            <strong>Auto Color</strong>
-            <p>描く場所の元写真の色を自動で使います。</p>
+          <div class="control-head"><span>紙の質感</span><label class="switch"><input id="textureToggle" type="checkbox" checked><span></span></label></div>
+          <div class="segmented three top-gap">
+            <button id="paperDrawingBtn" class="seg active">画用紙</button>
+            <button id="paperWaterBtn" class="seg">水彩紙</button>
+            <button id="paperSketchBtn" class="seg">スケッチ紙</button>
           </div>
-          <label class="switch"><input id="autoColorToggle" type="checkbox" checked><span></span></label>
-        </div>
-
-        <div id="manualColorRow" class="manual-color hidden">
-          <label>色 <input id="colorPicker" type="color" value="#2a2a2a"></label>
-          <button id="eyedropperBtn" class="secondary small">スポイト</button>
+          <div class="control-head sub"><span>質感の強さ</span><span id="textureStrengthValue">36%</span></div>
+          <input id="textureStrength" type="range" min="0" max="100" value="36" />
         </div>
 
         <div class="toolbar-row footer-actions">
           <button id="previewBtn" class="secondary">作品だけ見る</button>
           <button id="saveBtn" class="primary">PNG保存</button>
         </div>
-      </div>
+      </aside>
     </section>
   </main>
 
